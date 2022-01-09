@@ -57,35 +57,65 @@ public class InfoBord {
 		return infobord;
 	}
 
-
-	public void setRegels(){
-		String[] infoTekst={"--1--","--2--","--3--","--4--","leeg"};
-		int[] aankomsttijden=new int[5];
-		int aantalRegels = 0;
-		if(!infoBordRegels.isEmpty()){
-			for(String busID: infoBordRegels.keySet()){
-				JSONBericht regel = infoBordRegels.get(busID);
-				int dezeTijd=regel.getAankomsttijd();
-				String dezeTekst=regel.getInfoRegel();
-				int plaats=aantalRegels;
-				for(int i=aantalRegels;i>0;i--){
-					if(dezeTijd<aankomsttijden[i-1]){
-						aankomsttijden[i]=aankomsttijden[i-1];
-						infoTekst[i]=infoTekst[i-1];
-						plaats=i-1;
-					}
-				}
-				aankomsttijden[plaats]=dezeTijd;
-				infoTekst[plaats]=dezeTekst;
-				if(aantalRegels<4){
-					aantalRegels++;
-				}
+	private int setRegel(String[] infoTekst, int[] aankomsttijden, JSONBericht regel, int aantalRegels) {
+		int plaats = aantalRegels;
+		for(int i = aantalRegels; i > 0; i--) {
+			if(regel.getAankomsttijd() < aankomsttijden[i - 1]) {
+				aankomsttijden[i] = aankomsttijden[i - 1];
+				infoTekst[i] = infoTekst[i - 1];
+				plaats = i - 1;
 			}
 		}
-		if(checkRepaint(aantalRegels, aankomsttijden)){
-			repaintInfoBord(infoTekst);
-		}
+
+		aankomsttijden[plaats] = regel.getAankomsttijd();
+		infoTekst[plaats] = regel.getInfoRegel();
+		
+		aantalRegels = aantalRegels < 4 ? aantalRegels : aantalRegels++;
+		return aantalRegels;
 	}
+
+	public void setRegels() {
+		String[] infoTekst = {"--1--","--2--","--3--","--4--","leeg"};
+		int[] aankomsttijden = new int[5];
+		int aantalRegels = 0;
+
+		if(!infoBordRegels.isEmpty())
+			for(String busID : infoBordRegels.keySet()) 
+				aantalRegels = setRegel(infoTekst,aankomsttijden,infoBordRegels.get(busID),aantalRegels);
+
+		if(checkRepaint(aantalRegels, aankomsttijden)) 
+			repaintInfoBord(infoTekst); 
+	}
+
+	// public void setRegels(){
+	// 	String[] infoTekst={"--1--","--2--","--3--","--4--","leeg"};
+	// 	int[] aankomsttijden=new int[5];
+	// 	int aantalRegels = 0;
+
+	// 	if(!infoBordRegels.isEmpty()){
+	// 		for(String busID: infoBordRegels.keySet()){
+	// 			JSONBericht regel = infoBordRegels.get(busID);
+	// 			int dezeTijd=regel.getAankomsttijd();
+	// 			String dezeTekst=regel.getInfoRegel();
+	// 			int plaats=aantalRegels;
+	// 			for(int i=aantalRegels;i>0;i--){
+	// 				if(dezeTijd<aankomsttijden[i-1]){
+	// 					aankomsttijden[i]=aankomsttijden[i-1];
+	// 					infoTekst[i]=infoTekst[i-1];
+	// 					plaats=i-1;
+	// 				}
+	// 			}
+	// 			aankomsttijden[plaats]=dezeTijd;
+	// 			infoTekst[plaats]=dezeTekst;
+	// 			if(aantalRegels<4){
+	// 				aantalRegels++;
+	// 			}
+	// 		}
+	// 	}
+	// 	if(checkRepaint(aantalRegels, aankomsttijden)){
+	// 		repaintInfoBord(infoTekst);
+	// 	}
+	// }
 	
 	private boolean checkRepaint(int aantalRegels, int[] aankomsttijden){
 		int totaalTijden=0;
